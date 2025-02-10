@@ -1,12 +1,26 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class DeleteTaskDialog extends StatelessWidget {
-  final int id;
+class DeleteTaskDialog extends StatefulWidget {
+  final String id;
 
   const DeleteTaskDialog({
     super.key,
     required this.id,
   });
+
+  @override
+  State<DeleteTaskDialog> createState() => _DeleteTaskDialogState();
+}
+
+class _DeleteTaskDialogState extends State<DeleteTaskDialog> {
+  final CollectionReference _tasks =
+      FirebaseFirestore.instance.collection('tasks');
+
+  void _delete() {
+    _tasks.doc(widget.id).delete();
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +30,7 @@ class DeleteTaskDialog extends StatelessWidget {
       actions: [
         TextButton(
             onPressed: () {
-              
+              _delete();
             },
             child: const Text("Yes")),
         ElevatedButton(

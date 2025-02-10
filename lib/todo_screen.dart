@@ -24,7 +24,7 @@ class TodoScreen extends StatelessWidget {
     );
   }
 
-  void _deleteTask(BuildContext context, int id) {
+  void _deleteTask(BuildContext context, String id) {
     showDialog(
       context: context,
       builder: (context) => DeleteTaskDialog(
@@ -39,42 +39,51 @@ class TodoScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('To-Do App'),
       ),
-      body: Container(
-        child: ListView.builder(
-          itemCount: 5,
-          itemBuilder: (context, index) {
-            return Container(
-              padding: const EdgeInsets.only(bottom: 5, left: 10, right: 10),
-              child: ListTile(
-                title: const Text("task"),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        _editTask(context, index.toString(), "title");
-                      },
-                      icon: const Icon(Icons.edit),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        _deleteTask(context, index);
-                      },
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
-                tileColor: const Color.fromARGB(255, 202, 199, 199),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _tasks.orderBy('timestamp', descending: true).snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData)
+            return Center(
+              child: CircularProgressIndicator(),
             );
-          },
-        ),
+          var docs = snapshot.data!.docs;
+          return ListView.builder(
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              var task = docs[index];
+              return Container(
+                padding: const EdgeInsets.only(bottom: 5, left: 10, right: 10),
+                child: ListTile(
+                  title: Text(task['task title']),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          _editTask(context, task.id, task['task title']);
+                        },
+                        icon: const Icon(Icons.edit),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          _deleteTask(context, task.id);
+                        },
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                  tileColor: const Color.fromARGB(255, 202, 199, 199),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

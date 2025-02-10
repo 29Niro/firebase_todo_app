@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class EditTaskDialog extends StatefulWidget {
@@ -12,9 +13,17 @@ class EditTaskDialog extends StatefulWidget {
 }
 
 class _EditTaskDialogState extends State<EditTaskDialog> {
-  // TextEditingController _taskController = TextEditingController(text: widget.currentTitle);
-
   late TextEditingController _taskController;
+  final CollectionReference _tasks =
+      FirebaseFirestore.instance.collection('tasks');
+
+  void _update() {
+    if (_taskController.text.isNotEmpty) {
+      _tasks.doc(widget.id).update({'task title': _taskController.text});
+      _taskController.clear();
+      Navigator.pop(context);
+    }
+  }
 
   @override
   void initState() {
@@ -39,7 +48,11 @@ class _EditTaskDialogState extends State<EditTaskDialog> {
               Navigator.pop(context);
             },
             child: const Text("Cancel")),
-        ElevatedButton(onPressed: () {}, child: const Text("Update")),
+        ElevatedButton(
+            onPressed: () {
+              _update();
+            },
+            child: const Text("Update")),
       ],
     );
   }

@@ -14,10 +14,11 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       FirebaseFirestore.instance.collection('tasks');
 
   void _add() {
-    print("add");
     if (_taskController.text.isNotEmpty) {
       _tasks.add(
           {'task title': _taskController.text, 'timestamp': Timestamp.now()});
+      _taskController.clear();
+      Navigator.pop(context);
     }
   }
 
@@ -25,8 +26,9 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text("Add Task"),
-      content: const TextField(
-        decoration: InputDecoration(
+      content: TextField(
+        controller: _taskController,
+        decoration: const InputDecoration(
           hintText: "Type your task",
           border: OutlineInputBorder(),
         ),
@@ -40,7 +42,6 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
         ElevatedButton(
             onPressed: () {
               _add();
-              
             },
             child: const Text("Add")),
       ],
